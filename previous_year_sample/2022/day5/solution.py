@@ -52,17 +52,13 @@ def part2(input):
         from_stack = int(move_parts[3])
         to_stack = int(move_parts[5])
         moves = int(move_parts[1])
-        if moves > 1:
-            queue = []
-            for _ in range(moves):
-                pop_item = stacks[from_stack].pop()
-                queue.append(pop_item)
-            while queue:
-                item = queue.pop()       
-                stacks[to_stack].append(item)
-        else:
+        queue = []
+        for _ in range(moves):
             pop_item = stacks[from_stack].pop()
-            stacks[to_stack].append(pop_item)
+            queue.append(pop_item)
+        while queue:
+            item = queue.pop()       
+            stacks[to_stack].append(item)
     
     ans = ''
     for items in stacks.values():
