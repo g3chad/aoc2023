@@ -49,6 +49,7 @@ if __name__ == "__main__":
     day = 1
     puzzle_input = get_data(day=day, year=year)        
     input = parse(puzzle_input)
+    submit(part1(input), part="a", day=day, year=year)
     part2ans = part2(input)
     print(f'Part 2: {part2ans}')
     submit(part2ans, part="b", day=day, year=year)
