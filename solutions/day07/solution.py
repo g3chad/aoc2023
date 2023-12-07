@@ -66,8 +66,6 @@ def get_rank_with_jokers(hand):
     weights = ['0', 'J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A']
     counts = dict(Counter(hand))
     rank_as_is = get_hand_rank(counts)
-    if hand == 'JK3JT':
-        print('JK3JT')
     rank_with_jokers = get_hand_rank_jokers(hand) if 'J' in hand else rank_as_is
     rank = max(rank_as_is, rank_with_jokers)
     sort_key = str(rank)
@@ -117,7 +115,7 @@ def get_from_file():
 if __name__ == "__main__":
     year = 2023
     day = 7
-    processing_g3chad = True
+    processing_g3chad = False
     if processing_g3chad:
         # processing for my personal leaderboard, get data using my configured login
         puzzle_input = get_data(day=day, year=year)
