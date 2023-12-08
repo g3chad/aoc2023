@@ -24,7 +24,7 @@ def part1(input, start, must_be_all_Z):
     last_move = len(moves) - 1
     cur_node = start
     steps = 0
-    while True: #(not must_be_all_Z and cur_node[-1] != 'Z') or cur_node != 'ZZZ':
+    while True: 
         left, right = tree_map[cur_node]
         move = moves[cur_move]
         cur_move += 1
