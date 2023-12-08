@@ -1,7 +1,6 @@
 from aocd import get_data
 from aocd import submit
 import os
-from numpy import *
 import math
 
 def parse(puzzle_input):
