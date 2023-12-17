@@ -1,17 +1,11 @@
 import os 
-
-g_visited = set()
-
 class Beam():
     def __init__(self, grid, pos: tuple = (0,-1), dir: str = 'R') -> None:
         self.pos = pos
         self.dir = dir
-        self.grid = grid
+        self.grid = grid #todo we should refactor this into a board class that has a grid and maintains the beams, another day!
         self.ROWS = len(grid)
         self.COLS = len(grid[0])
-        self.visited = set()
-        self.energized = set()
-        if self._valid_pos(pos): self.energized.add(pos)
     
     def _valid_pos(self, pos):
         row = pos[0]
@@ -21,7 +15,7 @@ class Beam():
         else:
             return True
 
-    def move(self):
+    def move(self, visited, energized):
         new_pos = None
         match self.dir:            
             case 'R':
@@ -32,21 +26,19 @@ class Beam():
                 new_pos = (self.pos[0] - 1, self.pos[1])
             case 'D':
                 new_pos = (self.pos[0] + 1, self.pos[1])
-        global g_visited # hack, have to come back with fresh eyes to find out why my localized visited checks are not working
-        if (new_pos[0], new_pos[1], self.dir) in g_visited:
+        if (new_pos[0], new_pos[1], self.dir) in visited:
             self.can_move = False
             return (False, None)
         else:
-            g_visited.add((new_pos[0], new_pos[1], self.dir))
+            visited.add((new_pos[0], new_pos[1], self.dir))
         
-        if (new_pos, self.dir) in self.visited or not self._valid_pos(new_pos):
+        if not self._valid_pos(new_pos):
             self.can_move = False
             return (False, None)
                 
         # we can move
         self.pos = new_pos
-        self.visited.add((new_pos, self.dir))
-        self.energized.add(new_pos)
+        energized.add(new_pos)
         new_beams = [] # we might create new beams if we hit a splitter in the right dir
         tile = self.grid[new_pos[0]][new_pos[1]]
         match tile:
@@ -74,10 +66,8 @@ class Beam():
                 if self.dir == 'D' or self.dir == 'U':
                     # assume that current beam is done and these are two new beams
                     l_beam = Beam(self.grid, new_pos, 'L')
-                    l_beam.visited = self.visited.copy()
                     new_beams.append(l_beam)
                     r_beam = Beam(self.grid, new_pos, 'R')
-                    r_beam.visited = self.visited.copy()
                     new_beams.append(r_beam)
 
                     return (False, new_beams)
@@ -85,10 +75,8 @@ class Beam():
                 if self.dir == 'L' or self.dir == 'R':
                     # assume that current beam is done and these are two new beams
                     up_beam = Beam(self.grid, new_pos, 'U')
-                    up_beam.visited = self.visited.copy()
                     new_beams.append(up_beam)
                     down_beam = Beam(self.grid, new_pos, 'D')
-                    down_beam.visited = self.visited.copy()
                     new_beams.append(down_beam)
 
                     return (False, new_beams)
@@ -105,25 +93,18 @@ def part1(input, start=(0,-1), dir='R'):
     for row in input:
         grid.append([c for c in row])
     energized = set()
+    visited = set()
     beams = [ Beam(grid, start, dir) ]
     moving_beams = [beam for beam in beams]
     while moving_beams:        
         for beam in moving_beams:
-            valid_beam, new_beams = beam.move()
+            valid_beam, new_beams = beam.move(visited, energized)
             if not valid_beam:
-                if energized:
-                    for e in beam.energized:
-                        energized.add(e)
-                else:
-                    energized = beam.energized.copy()
                 beams.remove(beam)                
             if new_beams and len(new_beams) > 0:
                 beams = beams + new_beams
         moving_beams = [beam for beam in beams]
 
-    for beam in beams:
-        energized = energized.update(beam.energized)
-    
     return len(energized)
     
 def get_start_points(input):
@@ -160,11 +141,11 @@ def get_start_points(input):
     
 def part2(input):
     """Implementation for part 2"""
+
+    # todo feels like every time we run this we're recalculation some paths that we could cache to make this faster
     max_energy = 0
     starting_points = get_start_points(input)
     for start_pt in starting_points:
-        global g_visited
-        g_visited = set()
         start = (start_pt[0], start_pt[1])
         dir = start_pt[2]
         e = part1(input, start, dir)
