@@ -108,6 +108,7 @@ def part1(input, start=(0,-1), dir='R'):
     return len(energized)
     
 def get_start_points(input):
+    # ugly def need to refactor this to be cleaner and more elegant
     starting_points = []
     grid = []
     for row in input:
